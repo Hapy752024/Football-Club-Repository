@@ -42,3 +42,18 @@ class CharacteristicsViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
+class FootballClubViewSet(viewsets.ModelViewSet):
+    queryset = FootballClub.objects.all()
+    serializer_class = FootballClubSerializer
+    permission_classes = [permissions.AllowAny]
+    http_method_names = ['post'] # ['get', 'post', 'put', 'delete']
+
+    def create(self, request):
+        serializers = self.get_serializer(data=request.data)    
+        if serializers.is_valid():
+            serializers.save()
+            return Response(serializers.data, status=201) 
+        else:
+            return Response(serializers.errors, status=400)
+        
+        return super().create(request)

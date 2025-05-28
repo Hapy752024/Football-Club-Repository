@@ -1,0 +1,15 @@
+Frontend:
+1- npm
+2- vite
+3- React
+4- Axios : To manage data connection
+5- mui
+6- react-bootstrap
+7- Formik
+
+
+Backend:
+1- Python
+2- Django
+3- Django Rest Framework
+4- CORS headers
