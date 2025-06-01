@@ -3,32 +3,43 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
+import { FormHelperText } from "@mui/material";
 
-export default function SingleItemSelector({id, label, options, emptyOption = false}) {
-	const [selection, setSelection] = emptyOption ? React.useState("") : React.useState(options[0]?.value ?? "");
-
-	const handleChange = event => {
-		setSelection(event.target.value);
-	};
-
+/* name, value, onChange, and onBlur to be handled by parent - Formik*/
+export default function SingleItemSelector({
+	id,
+	label,
+	name,
+	value,
+	onChange,
+	onBlur,
+	error,
+	helperText,
+	options
+}) {
 	return (
 		<FormControl fullWidth>
-			<InputLabel id={`${id}-label`}>
-				{label}
-			</InputLabel>
+			<InputLabel id={`${id}-label`}>{label}</InputLabel>
 			<Select
 				labelId={`${id}-label`}
-				value={selection}
+				value={value}
 				id={id}
 				label={label}
-				onChange={handleChange}
-			>
-				{options.map(option =>
-					<MenuItem key={option.value} value={option.value}>
+				name={name}
+				onBlur={onBlur}
+				onChange={onChange}
+				error={error}>
+				{options.map((option) => (
+					<MenuItem
+						key={option.value}
+						value={option.value}>
 						{option.label}
 					</MenuItem>
-				)}
+				))}
 			</Select>
+			{error && helperText ? (
+				<FormHelperText error>{helperText}</FormHelperText>
+			) : null}
 		</FormControl>
 	);
 }

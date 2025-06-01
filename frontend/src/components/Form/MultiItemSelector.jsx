@@ -7,6 +7,7 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import Chip from "@mui/material/Chip";
+import { FormHelperText } from "@mui/material";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -19,30 +20,19 @@ const MenuProps = {
 	}
 };
 
-function getStyles(option, selectedOptions, theme) {
-	return {
-		fontWeight: selectedOptions.includes(option)
-			? theme.typography.fontWeightMedium
-			: theme.typography.fontWeightRegular
-	};
-}
-
-export default function MultipleSelectChip({
+export default function MultiItemSelector({
 	id,
 	label,
+	name,
+	value,
 	options,
-	emptyOption = false
+	onChange,
+	onBlur,
+	error, 
+	helperText
 }) {
 	const theme = useTheme();
-	const [selectedOptions, setSelectedOptions] = React.useState([]);
 
-	const handleChange = event => {
-		const { target: { value } } = event;
-		setSelectedOptions(
-			// On autofill we get a stringified value.
-			typeof value === "string" ? value.split(",") : value
-		);
-	};
 
 	return (
 		<div>
@@ -53,9 +43,13 @@ export default function MultipleSelectChip({
 				<Select
 					labelId={`${id}-label`}
 					id={id}
+					name={name}
+					label={label}
 					multiple
-					value={selectedOptions}
-					onChange={handleChange}
+					value={value}
+					onChange={onChange}
+					onBlur={onBlur}
+					error = {error}
 					input={<OutlinedInput id={id} label={label} />}
 					renderValue={selected =>
 						<Box
@@ -77,17 +71,16 @@ export default function MultipleSelectChip({
 							<MenuItem
 								key={option.value}
 								value={option.value}
-								style={getStyles(
-									option.value,
-									selectedOptions,
-									theme
-								)}
 							>
 								{option.label}
 							</MenuItem>
 						);
 					})}
 				</Select>
+				{error && helperText ? (
+					<FormHelperText error>{helperText}</FormHelperText>
+					) : null
+	}
 			</FormControl>
 		</div>
 	);
