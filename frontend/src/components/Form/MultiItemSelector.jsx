@@ -28,18 +28,15 @@ export default function MultiItemSelector({
 	options,
 	onChange,
 	onBlur,
-	error, 
+	error,
 	helperText
 }) {
 	const theme = useTheme();
 
-
 	return (
 		<div>
-			<FormControl sx={{width: "100%" }}>
-				<InputLabel id={`${id}-label`}>
-					{label}
-				</InputLabel>
+			<FormControl sx={{ width: "100%" }}>
+				<InputLabel id={`${id}-label`}>{label}</InputLabel>
 				<Select
 					labelId={`${id}-label`}
 					id={id}
@@ -49,29 +46,38 @@ export default function MultiItemSelector({
 					value={value}
 					onChange={onChange}
 					onBlur={onBlur}
-					error = {error}
-					input={<OutlinedInput id={id} label={label} />}
-					renderValue={selected =>
+					error={error}
+					input={
+						<OutlinedInput
+							id={id}
+							label={label}
+						/>
+					}
+					renderValue={(selected) => (
 						<Box
 							sx={{
 								display: "flex",
 								flexWrap: "wrap",
 								gap: 0.5
-							}}
-						>
-							{selected.map(value =>
-								<Chip key={value} label={options.find(option => option.value === value)?.label} />
-							)}
-						</Box>}
-					MenuProps={MenuProps}
-				>
-					{options.map(option => {
-					
+							}}>
+							{selected.map((value) => (
+								<Chip
+									key={value}
+									label={
+										options.find(
+											(option) => option.value === value
+										)?.label
+									}
+								/>
+							))}
+						</Box>
+					)}
+					MenuProps={MenuProps}>
+					{options.map((option) => {
 						return (
 							<MenuItem
 								key={option.value}
-								value={option.value}
-							>
+								value={option.value}>
 								{option.label}
 							</MenuItem>
 						);
@@ -79,8 +85,7 @@ export default function MultiItemSelector({
 				</Select>
 				{error && helperText ? (
 					<FormHelperText error>{helperText}</FormHelperText>
-					) : null
-	}
+				) : null}
 			</FormControl>
 		</div>
 	);

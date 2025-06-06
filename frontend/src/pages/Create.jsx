@@ -7,7 +7,7 @@ import * as Yup from "yup";
 import Box from "@mui/material/Box";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import { Typography } from "@mui/material";
-import TextField from "../components/Form/TextField";
+import AlphaNumericField from "../components/Form/AlphaNumericField";
 import SingleItemSelector from "../components/Form/SingleItemSelector";
 import MultiItemSelector from "../components/Form/MultiItemSelector";
 import NumericField from "../components/Form/NumericField";
@@ -19,28 +19,32 @@ export default function Create() {
 	const [leagues, setLeagues] = useState([]);
 	const [characteristics, setCharacteristics] = useState([]);
 	const [toastMessage, setToastMessage] = useState(null);
+	const [isLoading, setIsLoading] = useState(true);
 	const navigate = useNavigate();
 
 	const getData = async () => {
+		setIsLoading(true);
 		try {
 			const countriesRes = await axiosInstance.get(`/country/`);
 			setCountries(countriesRes.data);
-			console.log("received data - countries: ", countriesRes.data);
 
 			const leaguesRes = await axiosInstance.get(`/league/`);
 			setLeagues(leaguesRes.data);
-			console.log("received data - leagues: ", leaguesRes.data);
 
 			const characteristicsRes = await axiosInstance.get(
 				`/characteristics/`
 			);
 			setCharacteristics(characteristicsRes.data);
-			console.log(
-				"received data - characteristics: ",
-				characteristicsRes.data
-			);
 		} catch (error) {
 			console.error("Error fetching data:", error);
+			setToastMessage(
+				<MyToasterBox
+					message="Failed to load form data. Please refresh the page."
+					severity="error"
+				/>
+			);
+		} finally {
+			setIsLoading(false);
 		}
 	};
 
@@ -55,8 +59,8 @@ export default function Create() {
 			.required("City is required")
 			.max(100, "City cannot exceed 100 characters")
 			.min(3, "At least 3 characters are required")
-			.matches(/^[a-zA-Z\s,]+$/,
-            "City name can only contain letters, spaces, and commas"),
+			.matches(/^[\p{L}\s,.-]+$/u,
+				"City name can only contain letters, spaces, commas, periods, and hyphens"),
 		characteristics: Yup.array().min(
 			1,
 			"At least one characteristic is required"
@@ -97,13 +101,10 @@ export default function Create() {
 							message="Club created successfully!"
 							severity="success"
 						/>
-					)
+					);
 					setTimeout(() => {
 						navigate("/", { state: { created: true } });
 					}, 5000);
-					
-					
-					
 				} else {
 					setToastMessage(
 						<MyToasterBox
@@ -178,7 +179,7 @@ export default function Create() {
 								xs={12}
 								md={6}
 								className="mb-3">
-								<TextField
+								<AlphaNumericField
 									id="name"
 									label="Name"
 									name="name"
@@ -253,7 +254,7 @@ export default function Create() {
 							<Col
 								xs={12}
 								md={6}>
-								<TextField
+								<AlphaNumericField
 									id="city"
 									label="City"
 									name="city"
