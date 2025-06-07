@@ -83,13 +83,21 @@ function Home() {
 				Cell: ({ cell }) => {
 					const club_characteristics = cell.getValue();
 					return (
-						<Box sx={{ display: "flex", gap: "5px", flexWrap: "wrap" }}>
+						<Box
+							sx={{
+								display: "flex",
+								gap: "5px",
+								flexWrap: "wrap"
+							}}>
 							{club_characteristics.map((char, index) => (
 								<Chip
 									key={index}
 									label={char}
 									variant="outlined"
-									sx={{ marginRight: "5px", marginBottom: "5px" }}
+									sx={{
+										marginRight: "5px",
+										marginBottom: "5px"
+									}}
 								/>
 							))}
 						</Box>
@@ -121,8 +129,8 @@ function Home() {
 			</Row>
 
 			<Row className="mb-4">
-				< Col xs={12}>
-					<MaterialReactTable table={table} />;
+				<Col xs={12}>
+					<MaterialReactTable table={table} />
 				</Col>
 			</Row>
 		</Container>

@@ -14,8 +14,8 @@ export default function MyToasterBox({ message, severity = "info" }) {
 	return (
 		<Box
 			sx={{
-				backgroundColor: backgroundColor,
-				color: severity === "error" ? "#fff" : "#000",
+				backgroundColor: colors.background,
+				color: colors.text,
 				borderRadius: "4px",
 				boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
 				padding: "10px",

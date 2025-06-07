@@ -35,7 +35,7 @@ export default function MultiItemSelector({
 
 	return (
 		<div>
-			<FormControl sx={{ width: "100%" }}>
+			<FormControl sx={{ width: "100%" }} error={error}>
 				<InputLabel id={`${id}-label`}>{label}</InputLabel>
 				<Select
 					labelId={`${id}-label`}
