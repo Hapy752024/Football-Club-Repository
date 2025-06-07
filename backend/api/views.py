@@ -46,7 +46,14 @@ class FootballClubViewSet(viewsets.ModelViewSet):
     queryset = FootballClub.objects.all()
     serializer_class = FootballClubSerializer
     permission_classes = [permissions.AllowAny]
-    http_method_names = ['post'] # ['get', 'post', 'put', 'delete']
+    http_method_names = ['get','post'] # ['get', 'post', 'put', 'delete']
+
+    
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     def create(self, request):
         serializers = self.get_serializer(data=request.data)    

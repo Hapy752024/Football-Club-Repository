@@ -22,6 +22,14 @@ class CharacteristicsSerializer(serializers.ModelSerializer):
 
 class FootballClubSerializer(serializers.ModelSerializer):
 
+    country = CountrySerializer(read_only=True)
+    league = LeagueSerializer(read_only=True)
+    # characteristics = CharacteristicsSerializer(many=True, read_only=True)
+    characteristics_names = serializers.SerializerMethodField()
+
+    def get_characteristics_names(self, obj): # here the function name must be get_<field_name> in our case field_name =characteristics_names
+        return [char.name for char in obj.characteristics.all()]
+    
     class Meta:
         model = FootballClub
         fields = '__all__'
