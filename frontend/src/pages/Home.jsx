@@ -1,19 +1,26 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axiosInstance from "./Axios";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
 import {
 	MaterialReactTable,
 	useMaterialReactTable
 } from "material-react-table";
 import CalendarViewMonthIcon from "@mui/icons-material/CalendarViewMonth";
-import { Typography, Box, Chip } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { Typography, Box, Chip, IconButton } from "@mui/material";
 import { Container, Row, Col } from "react-bootstrap";
+
 function Home() {
 	const location =
 		useLocation(); /* This parameter is to understand if the user has been redirected after successful creation*/
+	// Get the country from the navigation state
+	const selectedCountry = location.state?.selectedCountry || null;
+
 	const [isLoading, setIsLoading] = useState(true);
 	const [clubsData, setClubsData] = useState([]);
+	const navigate = useNavigate(); // For navigation if needed
 
 	const getData = async () => {
 		setIsLoading(true);
@@ -38,6 +45,19 @@ function Home() {
 		// Check if redirected after successful creation
 		if (location.state?.created) {
 			toast.success("Item created successfully!", {
+				style: {
+					backgroundColor: "green",
+					padding: "16px",
+					color: "white"
+				}
+			});
+
+			// Clear the state to avoid showing the toast again on refresh
+			window.history.replaceState({}, "");
+		}
+
+		if (location.state?.updated) {
+			toast.success("Item updated successfully!", {
 				style: {
 					backgroundColor: "green",
 					padding: "16px",
@@ -108,9 +128,57 @@ function Home() {
 		[]
 	);
 
+	// Filter the data based on the state (Method 2)
+	const filteredData = useMemo(() => {
+		if (!selectedCountry) {
+			console.log("No selected country:", selectedCountry);
+			return clubsData; // Show all clubs when no country selected
+		}
+		console.log("There is a selected country. Selected country:", selectedCountry);
+
+		const filteredClubs = clubsData.filter(
+			(club) =>
+				club.country?.name?.toLowerCase() ===
+				selectedCountry.toLowerCase()
+		)
+
+		console.log("Filtered clubs:", filteredClubs);
+
+		return filteredClubs
+	}, [clubsData, selectedCountry]);
+
 	const table = useMaterialReactTable({
 		columns,
-		data: clubsData
+		data: filteredData,
+		enableRowActions: true,
+		renderRowActions: ({ row, table }) => (
+			<Box sx={{ display: "flex", flexWrap: "nowrap", gap: "8px" }}>
+				{/* <IconButton
+					color="primary"
+					onClick={() =>
+						window.open(
+							`mailto:kevinvandy@mailinator.com?subject=Hello ${row.original.firstName}!`
+						)
+					}>
+					<EmailIcon />
+				</IconButton> */}
+				<IconButton
+					color="primary"
+					onClick={() => {
+						navigate(`/edit/${row.original.id}`, {
+							state: { rowData: row.original }
+						});
+					}}>
+					<EditIcon />
+				</IconButton>
+				<IconButton
+					color="error"
+					component={Link}
+					to={`/delete/${row.original.id}`}>
+					<DeleteIcon />
+				</IconButton>
+			</Box>
+		)
 	});
 
 	return (
