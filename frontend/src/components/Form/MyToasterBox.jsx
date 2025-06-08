@@ -23,7 +23,7 @@ export default function MyToasterBox({ message, severity = "info" }) {
 				marginBottom: "10px",
 				display: "flex",
 				alignItems: "center"
-			}}>gut 
+			}}>
 			<Typography>{message}</Typography>
 		</Box>
 	);

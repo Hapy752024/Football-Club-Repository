@@ -32,10 +32,6 @@ export default function Edit() {
 
 	const params = useParams();
 	const clubId = params.id; // Assuming the URL is like /edit/:id
-	if (!clubId) {
-		console.error("Club ID is not provided in the URL");
-		return <div> no id found</div>;
-	}
 
 	const navigate = useNavigate();
 
