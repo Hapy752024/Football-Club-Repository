@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
-import axiosInstance from "./Axios";
+import createAxiosInstance from "./Axios";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Box from "@mui/material/Box";
@@ -13,6 +13,7 @@ import MultiItemSelector from "../components/Form/MultiItemSelector";
 import NumericField from "../components/Form/NumericField";
 import TextArea from "../components/Form/TextArea";
 import MyToasterBox from "../components/Form/MyToasterBox";
+import ImageUpload from "../components/Image/ImageUpload";
 
 export default function Edit() {
 	const [club, setClub] = useState({
@@ -22,18 +23,79 @@ export default function Edit() {
 		city: "",
 		characteristics: [],
 		attendance: 0,
-		description: ""
+		description: "",
+		images: [] // Initialize images state
 	});
 	const [countries, setCountries] = useState([]);
 	const [leagues, setLeagues] = useState([]);
 	const [characteristics, setCharacteristics] = useState([]);
 	const [toastMessage, setToastMessage] = useState(null);
+	const [images, setImages] = useState([]); // State to hold newly uploaded images for upload
+	const [imagesToDelete, setImagesToDelete] = useState([]); // State to hold images to delete
 	const [isLoading, setIsLoading] = useState(true);
+
+	const axiosInstance = createAxiosInstance(); // Create an instance of axios with the base URL and headers
 
 	const params = useParams();
 	const clubId = params.id; // Assuming the URL is like /edit/:id
 
 	const navigate = useNavigate();
+
+	const getImageUrls = (images) => {
+		if (!Array.isArray(images)) return []; // Handle non-array inputs
+
+		return images
+			.map((image) => {
+				if (!image?.image) return null; // Skip if missing
+
+				// If already a full URL (starts with http/https)
+				if (
+					typeof image.image === "string" &&
+					/^https?:\/\//.test(image.image)
+				) {
+					return image.image;
+				}
+
+				// If it's a relative path, prepend your media URL (adjust based on your backend)
+				if (typeof image.image === "string") {
+					return `${process.env.REACT_APP_MEDIA_URL || ""}${
+						image.image
+					}`;
+				}
+
+				return null; // Fallback
+			})
+			.filter(Boolean); // Remove null/undefined values
+	};
+
+	const handleImagesChange = (newImages) => {
+		console.log("Images received from ImageUpload:", newImages);
+		setImages(newImages);
+	};
+
+	// Parent passes this handler to ImageUpload
+	const handleDeleteImage = async (imageId) => {
+		setImagesToDelete((prev) => [...prev, imageId]);
+		// Optimistic UI update
+		setClub((prev) => ({
+			...prev,
+			images: prev.images.filter((img) => img.id !== imageId)
+		}));
+	};
+
+	const deleteMarkedImages = async () => {
+		// Sequential deletion with error collection
+		const results = [];
+		for (const imageId of imagesToDelete) {
+			try {
+				await axiosInstance.delete(`/club-images/${imageId}/`);
+				results.push({ success: true, imageId });
+			} catch (error) {
+				results.push({ success: false, imageId, error });
+			}
+		}
+		return results;
+	};
 
 	const getData = async () => {
 		setIsLoading(true);
@@ -110,26 +172,67 @@ export default function Edit() {
 		validationSchema: validationSchema,
 		validateOnBlur: true,
 		onSubmit: async (values) => {
-			console.log("Form values:", values);
 			try {
+				// 1. Prepare FormData
+				const formData = new FormData();
+
+				// Append simple fields
+				formData.append("name", values.name);
+				formData.append("league", values.league);
+				formData.append("country", values.country);
+				formData.append("city", values.city);
+				formData.append("attendance", values.attendance);
+				formData.append("description", values.description || "");
+
+				// Append array fields
+				values.characteristics.forEach((item) => {
+					formData.append("characteristics", item);
+				});
+
+				// Append uploaded images with validation
+				if (images && images.length > 0) {
+					images.forEach((image) => {
+						if (image instanceof File || image instanceof Blob) {
+							formData.append("newly_uploaded_images", image);
+						} else {
+							console.warn(
+								"Skipping invalid image format:",
+								image
+							);
+						}
+					});
+				}
+
+				// 2. First update club data
 				const postRes = await axiosInstance.put(
 					`/football-club/${clubId}/`,
-					values
+					formData,
+					{
+						headers: {
+							"Content-Type": "multipart/form-data"
+						}
+					}
 				);
 				console.log("Post response:", postRes);
+
+				// 3. Then delete marked images
+				if (imagesToDelete.length > 0) {
+					await deleteMarkedImages(imagesToDelete);
+					// Clear deletion queue on success
+					setImagesToDelete([]);
+				}
+
 				if (postRes.status === 201 || postRes.status === 200) {
 					setToastMessage(
 						<MyToasterBox
-							message="Club updated successfully!"
+							message="Club data successfully!"
 							severity="success"
 						/>
 					);
-
-					navigate("/", { state: { updated: true } });
 				} else {
 					setToastMessage(
 						<MyToasterBox
-							message={`Failed to update club. Error from backend is ${JSON.stringify(
+							message={`Failed to create club. Error from backend is ${JSON.stringify(
 								postRes.data
 							)}`}
 							severity="error"
@@ -141,14 +244,13 @@ export default function Edit() {
 				setTimeout(() => {
 					setToastMessage(null);
 				}, 3000); // Hide after 3 seconds
+
+				setTimeout(() => {
+					navigate("/", { state: { created: true } });
+				}, 3000);
 			} catch (error) {
-				console.error("Error creating club:", error);
-				setToastMessage(
-					<MyToasterBox
-						message="Failed to create club. Network error."
-						severity="error"
-					/>
-				);
+				// Handle rollback if needed
+				console.error("Submission failed:", error);
 			}
 		}
 	});
@@ -179,6 +281,19 @@ export default function Edit() {
 
 				<Row className="mb-4">
 					<Col xs={12}>{toastMessage}</Col>
+				</Row>
+
+				<Row className="mb-4">
+					<Col xs={12}>
+						{
+							<ImageUpload
+								existingImages={club.images || []}
+								onImagesChange={handleImagesChange}
+								onDeleteImage={handleDeleteImage}
+								maxImages={5}
+							/>
+						}
+					</Col>
 				</Row>
 
 				<Row>

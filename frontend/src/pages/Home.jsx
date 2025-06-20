@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import axiosInstance from "./Axios";
+import createAxiosInstance from "./Axios";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
 import {
@@ -13,6 +13,8 @@ import { Typography, Box, Chip, IconButton } from "@mui/material";
 import { Container, Row, Col } from "react-bootstrap";
 
 function Home() {
+	console.log("Loading home")
+
 	const location =
 		useLocation(); /* This parameter is to understand if the user has been redirected after successful creation*/
 	// Get the country from the navigation state
@@ -20,6 +22,7 @@ function Home() {
 
 	const [isLoading, setIsLoading] = useState(true);
 	const [clubsData, setClubsData] = useState([]);
+	const axiosInstance = createAxiosInstance(); // Create an instance of axios with the base URL and headers
 	const navigate = useNavigate(); // For navigation if needed
 
 	const getData = async () => {

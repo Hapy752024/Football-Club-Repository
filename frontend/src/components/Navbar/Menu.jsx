@@ -11,13 +11,16 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import axiosInstance from "../../pages/Axios"; // Adjust the import path as necessary
+import createAxiosInstance from "../../pages/Axios"; // Adjust the import path as necessary
+import axios from "axios";
 
 export default function Menu() {
 	const navigate = useNavigate();
 	const [open, setOpen] = React.useState(true);
 	const [countries, setCountries] = useState([]);
 	const [selectedCountry, setSelectedCountry] = useState("");
+	
+	const axiosInstance = createAxiosInstance(); // Create an instance of axios with the base URL and headers
 
 	const getData = async () => {
 		try {
@@ -101,6 +104,7 @@ export default function Menu() {
 						disablePadding>
 						{countries.map((country, index) => (
 							<ListItemButton
+								key={country.id} 
 								sx={{ pl: 4, backgroundColor:country.name === selectedCountry ?  "#f0f0f0"  : null }}
 								onClick={() =>
 									handleCountrySelect(country.name)

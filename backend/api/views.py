@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets, permissions # type: ignore
 from rest_framework.response import Response
-
+from django.db.models import Prefetch
 from .models import *    
 from .serializers import *  
 
@@ -42,15 +42,46 @@ class CharacteristicsViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class FootballClubViewSet(viewsets.ModelViewSet):
-    queryset = FootballClub.objects.all()
+
+class ClubImageViewSet(viewsets.ModelViewSet):
+    queryset = ClubImage.objects.all()
+    serializer_class = ClubImageSerializer
     permission_classes = [permissions.AllowAny]
-    http_method_names = ['get','post','put', 'patch', 'delete'] # ['get', 'post', 'put', 'delete']
+    http_method_names = ['delete']
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    
+    def destroy(self, request, pk=None):
+        try:
+            print(f'DEBUG: Attempting to delete club image with ID: {pk}')
+            club_image = self.get_object()
+            print(f'DEBUG: Club image found: {club_image}')
+            if club_image.image:
+                print(f'DEBUG: Deleting image file: {club_image.image.path}')
+                club_image.delete()
+            return Response(status=204)
+        except club_image.DoesNotExist:
+            return Response({"error": "Club image not found"}, status=404)
+
+class FootballClubViewSet(viewsets.ModelViewSet):
+    # This following queryset is equivalent to queryset = FootballClub.objects.all() however it optimizes how the objects are fetched
+    queryset = FootballClub.objects.select_related('country', 'league').prefetch_related(
+    'images', Prefetch('characteristics', queryset=Characteristics.objects.only('name')))
+    permission_classes = [permissions.AllowAny]
+    http_method_names = ['get','post','put', 'patch', 'delete'] 
 
     def get_serializer_class(self):
         """Return different serializers for read vs write operations"""
-        if self.action in ['list', 'retrieve']:
+        if self.action in ['list']:
+            return FootballClubListSerializer
+        elif self.action in ['retrieve']:
             return FootballClubReadSerializer
+        #else for create, update, partial_update, destroy
+        print("DEBUG: Using FootballClubWriteSerializer will be returned")
         return FootballClubWriteSerializer
 
     def list(self, request):
@@ -59,6 +90,7 @@ class FootballClubViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def create(self, request):
+        print("DEBUG: Creating a new Football Club ....")
         serializers = self.get_serializer(data=request.data)    
         if serializers.is_valid():
             serializers.save()

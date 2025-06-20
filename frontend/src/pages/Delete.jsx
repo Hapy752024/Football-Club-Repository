@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
-import axiosInstance from "./Axios";
+import createAxiosInstance from "./Axios";
 import Box from "@mui/material/Box";
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Typography } from "@mui/material";
@@ -19,6 +19,8 @@ export default function Delete() {
 	});
 	const [toastMessage, setToastMessage] = useState(null);
 	const [isLoading, setIsLoading] = useState(true);
+
+	const axiosInstance = createAxiosInstance();
 
 	const navigate = useNavigate();
 	const params = useParams();

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
-import axiosInstance from "./Axios";
+import createAxiosInstance from "./Axios";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Box from "@mui/material/Box";
@@ -13,14 +13,20 @@ import MultiItemSelector from "../components/Form/MultiItemSelector";
 import NumericField from "../components/Form/NumericField";
 import TextArea from "../components/Form/TextArea";
 import MyToasterBox from "../components/Form/MyToasterBox";
+import ImageUpload from "../components/Image/ImageUpload"; 
 
 export default function Create() {
 	const [countries, setCountries] = useState([]);
 	const [leagues, setLeagues] = useState([]);
 	const [characteristics, setCharacteristics] = useState([]);
+	const [images, setImages] = useState([]);
 	const [toastMessage, setToastMessage] = useState(null);
 	const [isLoading, setIsLoading] = useState(true);
+	const [error, setError] = useState("");
+	const [success, setSuccess] = useState("");
+
 	const navigate = useNavigate();
+	const axiosInstance = createAxiosInstance(false);
 
 	const getData = async () => {
 		setIsLoading(true);
@@ -48,6 +54,11 @@ export default function Create() {
 		}
 	};
 
+	const handleImagesChange = (newImages) => {
+		console.log("Images received from ImageUpload:", newImages);
+		setImages(newImages);
+	};
+
 	const validationSchema = Yup.object({
 		name: Yup.string()
 			.required("Name is required")
@@ -59,8 +70,10 @@ export default function Create() {
 			.required("City is required")
 			.max(100, "City cannot exceed 100 characters")
 			.min(3, "At least 3 characters are required")
-			.matches(/^[\p{L}\s,.-]+$/u,
-				"City name can only contain letters, spaces, commas, periods, and hyphens"),
+			.matches(
+				/^[\p{L}\s,.-]+$/u,
+				"City name can only contain letters, spaces, commas, periods, and hyphens"
+			),
 		characteristics: Yup.array().min(
 			1,
 			"At least one characteristic is required"
@@ -90,10 +103,52 @@ export default function Create() {
 		onSubmit: async (values) => {
 			console.log("Form values:", values);
 			try {
-				const postRes = await axiosInstance.post(
+
+				const formData = new FormData();
+
+				// Append form fields
+				formData.append("name", values.name);
+				formData.append("league", values.league);
+				formData.append("country", values.country);
+				formData.append("city", values.city);
+				formData.append("attendance", values.attendance);
+				formData.append("description", values.description || "");
+
+				// Append array fields
+				values.characteristics.forEach((item) =>
+					formData.append("characteristics", item)
+				);
+
+				// Append uploaded images
+				images.forEach((image) => {
+					formData.append("newly_uploaded_images", image);
+					console.log("Appending image to form", image);
+					if (image instanceof File) {
+						console.log("Image is a File object:", image.name);
+					} else {
+						console.error("Image is not a File object:", image);
+					}
+
+				});
+
+				// Debug FormData before sending
+				for (let [key, value] of formData.entries()) {
+					console.log(key, value);
+}
+
+			
+
+				const postRes = await axiosInstance.post(`/football-club/`, formData, {
+					headers: {
+						//"Content-Type": "multipart/form-data"
+						"Content-Type": undefined // Let browser set the correct boundary
+					}
+				});
+				
+/* 				const postRes = await axiosInstance.post(
 					`/football-club/`,
 					values
-				);
+				); */
 				console.log("Post response:", postRes);
 				if (postRes.status === 201) {
 					setToastMessage(
@@ -166,6 +221,17 @@ export default function Create() {
 
 				<Row className="mb-4">
 					<Col xs={12}>{toastMessage}</Col>
+				</Row>
+
+				<Row className="mb-4">
+					<Col xs={12}>
+						<Typography> Here expected to be the image upload </Typography>
+						{ <ImageUpload
+							existingImages={[]}
+							onImagesChange={handleImagesChange}
+							maxImages={5}
+						/> }
+					</Col>
 				</Row>
 
 				<Row>
