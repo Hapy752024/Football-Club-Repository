@@ -2,7 +2,7 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 # More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
 
-name: Build and deploy Python app to Azure Web App - Football-Club-Django-Backend
+name: Build and deploy Python app to Azure Web App - football-clubs-django-backend
 
 on:
   push:
@@ -35,7 +35,8 @@ jobs:
           cd backend
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      
+
+
       - name: Collect static files
         run: |
           cd backend
@@ -44,9 +45,7 @@ jobs:
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Zip artifact for deployment
-        run: |
-          cd backend
-          zip release.zip ./* -r
+        run: zip release.zip ./* -r
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
@@ -76,14 +75,13 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_D2B9FE18FD7A45F6A5194918BC3E6237 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_510C55CA56F0489FA62F440D0A6337EE }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_964F2BF18ED645AC8B5110CED2A58A93 }}
+          client-id: ${{ secrets.__clientidsecretname__ }}
+          tenant-id: ${{ secrets.__tenantidsecretname__ }}
+          subscription-id: ${{ secrets.__subscriptionidsecretname__ }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
-          app-name: 'Football-Club-Django-Backend'
+          app-name: 'football-clubs-django-backend'
           slot-name: 'Production'
-          
