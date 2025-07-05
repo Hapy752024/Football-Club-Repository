@@ -157,7 +157,6 @@ htmlcov/
 
 # Configuration Files with Sensitive Data
 config.py
-settings.py
 secrets.json
 credentials.json
 *.key
