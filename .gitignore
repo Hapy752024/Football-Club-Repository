@@ -22,6 +22,10 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+# Ignore media files in the backend
+backend/media/
+
+
 # Virtual Environments
 venv/
 env/
@@ -119,11 +123,6 @@ plots/
 outputs/
 results/
 figures/
-*.png
-*.jpg
-*.jpeg
-*.pdf
-*.svg
 
 !docs/**/*.png
 !docs/**/*.jpg
