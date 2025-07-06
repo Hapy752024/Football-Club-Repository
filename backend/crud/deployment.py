@@ -5,7 +5,7 @@ from .settings import BASE_DIR
 
 ALLOWED_HOSTS = [os.environ['WEBSITE_HOSTNAME']]
 CSRF_TRUSTED_ORIGINS = [f"https://{os.environ['WEBSITE_HOSTNAME']}"]
-DEBUG = False
+DEBUG = True
 SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
 MIDDLEWARE = [
