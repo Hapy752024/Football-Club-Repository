@@ -1,8 +1,15 @@
+
 import axios from "axios";
+
+const baseUrl = "http://localhost:8000/api";
+const isDevelopment = import.meta.env.MODE === "development";
+const baseUrl2 = isDevelopment
+	? import.meta.env.VITE_API_BASE_URL_LOCAL
+	: import.meta.env.VITE_API_BASE_URL_PROD;
 
 const createAxiosInstance = (isFileUpload = false) => {
 	const config = {
-		baseURL: "http://localhost:8000/api",
+		baseURL: baseUrl2,
 		timeout: 30000,
 		headers: {
 			Accept: "application/json"
