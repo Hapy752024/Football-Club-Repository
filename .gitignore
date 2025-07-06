@@ -74,18 +74,22 @@ yarn.lock
 
 # Machine Learning Specific
 # Datasets (usually too large for git)
-*.csv
-*.json
-*.parquet
-*.pkl
-*.pickle
-*.h5
-*.hdf5
-*.npz
-data/
+# Ignore dataset and model formats ONLY in data folders
+data/*.csv
+data/*.json
+data/*.parquet
+data/*.pkl
+data/*.pickle
+data/*.h5
+data/*.hdf5
+data/*.npz
+
 datasets/
 raw_data/
 processed_data/
+models/
+checkpoints/
+
 
 # Model Files
 *.model
@@ -120,6 +124,7 @@ figures/
 *.jpeg
 *.pdf
 *.svg
+
 !docs/**/*.png
 !docs/**/*.jpg
 !docs/**/*.pdf
