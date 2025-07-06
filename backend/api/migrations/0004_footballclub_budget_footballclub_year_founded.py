@@ -15,9 +15,4 @@ class Migration(migrations.Migration):
             name='budget',
             field=models.DecimalField(blank=True, decimal_places=2, max_digits=15, null=True),
         ),
-        migrations.AddField(
-            model_name='footballclub',
-            name='year_founded',
-            field=models.IntegerField(blank=True, null=True),
-        ),
     ]
