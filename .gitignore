@@ -28,6 +28,7 @@ backend/media/
 
 
 # Virtual Environments
+.venv/
 venv/
 env/
 ENV/
@@ -147,6 +148,10 @@ logs/
 *.swp
 *.swo
 *~
+
+tmp/
+temp/
+Temporary/
 
 # Cache
 .cache/
