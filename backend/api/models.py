@@ -148,6 +148,7 @@ class FootballClub(models.Model):
     description = models.CharField(max_length=1000)
     attendance = models.IntegerField(null=True, blank=True)
     city = models.CharField(max_length=100)
+    year_founded = models.IntegerField(null=True, blank=True)
     country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name="clubs")
     league = models.ForeignKey(League, on_delete=models.CASCADE, related_name="clubs")
     characteristics = models.ManyToManyField(Characteristics, related_name="clubs")
