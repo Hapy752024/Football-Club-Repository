@@ -7,7 +7,12 @@ const baseUrl2 = isDevelopment
 	? import.meta.env.VITE_API_BASE_URL_LOCAL
 	: import.meta.env.VITE_API_BASE_URL_PROD;
 
+
 const createAxiosInstance = (isFileUpload = false) => {
+	console.log("Local URL:", import.meta.env.VITE_API_BASE_URL_LOCAL);
+	console.log("Prod URL:", import.meta.env.VITE_API_BASE_URL_PROD);
+	console.log(" Mode: ", import.meta.env.MODE)
+
 	const config = {
 		baseURL: baseUrl2,
 		timeout: 30000,

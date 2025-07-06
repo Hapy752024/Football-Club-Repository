@@ -23,6 +23,7 @@ share/python-wheels/
 MANIFEST
 
 # Ignore media files in the backend
+
 backend/media/
 
 
