@@ -73,11 +73,11 @@ DATABASES = {
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'BACKEND': 'django_redis.cache.RedisCache',  # ✅ Use this backend
         'LOCATION': os.environ['AZURE_REDIS_CONNECTIONSTRING'],
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
             "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
         }
     }
-}   
+}
